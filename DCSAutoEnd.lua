@@ -1,4 +1,4 @@
-local filename = 'DCSCHAUTOEND.LUA'
+local filename = 'DCSAutoEnd.lua'
 DCSAutoEnd = {}
 
 local msg2HoursLeftSend = false
@@ -36,7 +36,7 @@ function DCSAutoEnd.OnSimulationFrame()
         elseif restarted == false and modelTime >= totalTime then
             net.send_chat("Mission end", true)
             restarted = true
-            net.load_next_mission()
+            RandomWeather.LoadNextMission()
         end
     end
 end

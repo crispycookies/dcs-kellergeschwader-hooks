@@ -1,9 +1,10 @@
 local dcsAutoEnd = {}
-local filename = 'DCSAUTOENDGGAMEGUI.LUA'
+local filename = 'DCSAutoEndGameGUI.lua'
 
 log.write(filename, log.INFO, 'DCSCAutoEnd registered')
 
 function dcsAutoEnd.onSimulationStart()
+    loadfile(lfs.writedir()..'Scripts\\RandomWeather.lua')()
     loadfile(lfs.writedir()..'Scripts\\DCSAutoEnd.lua')()
 end
 

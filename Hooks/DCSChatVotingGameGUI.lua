@@ -1,9 +1,10 @@
 local dcsChatVoting = {}
-local filename = 'DCSCHATVOTINGGAMEGUI.LUA'
+local filename = 'DCSChatVotingGameGUI.lua'
 
 log.write(filename, log.INFO, 'DCSChatVoting registered')
 
 function dcsChatVoting.onSimulationStart()
+    loadfile(lfs.writedir()..'Scripts\\RandomWeather.lua')()
     loadfile(lfs.writedir()..'Scripts\\DCSChatVoting.lua')()
 end
 

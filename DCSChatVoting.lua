@@ -1,4 +1,4 @@
-local filename = 'DCSCHATVOTING.LUA'
+local filename = 'DCSChatVoting.lua'
 
 function getPlayerCount()
     local count = 0
@@ -92,7 +92,7 @@ function VOTING:_addVote(playerId)
     else
         local count = getPlayerCount()
 
-        if count == 1 then
+        if count <= 1 then
             self.Callback()
         elseif count > 0 then
             self.VoteActive = true
@@ -123,9 +123,9 @@ DCSChatVoting = {}
 
 local skipVote = VOTING.New("--skip",
 function()
-    log.write(filename, log.INFO, "Voting successfull. Next mission will be started.")
+    log.write(filename, log.INFO, "Skip voting successfull. Next mission will be started.")
     net.send_chat("Voting successfull. Next mission will be started.", true)
-    net.load_next_mission()
+    RandomWeather.LoadNextMission()
 end)
 
 function DCSChatVoting.OnGameEvent(eventName, arg1, arg2, arg3, arg4)
