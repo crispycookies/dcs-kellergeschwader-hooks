@@ -20,14 +20,17 @@ function ServerStatus.writeStatus()
         end
     end
 
+    local myPlayerId = net.get_my_player_id()
     for _, playerId in pairs(net.get_player_list()) do
-        local playerInfo = net.get_player_info(playerId)
-        serverStatus.players[playerId] = {}
-        serverStatus.players[playerId].name = playerInfo.name
-        if playerInfo.slot == '' then
-            serverStatus.players[playerId].role = 'spectator'
-        else
-            serverStatus.players[playerId].role = slots[playerInfo.slot].type
+        if playerId ~= myPlayerId then
+            local playerInfo = net.get_player_info(playerId)
+            serverStatus.players[playerId] = {}
+            serverStatus.players[playerId].name = playerInfo.name
+            if playerInfo.slot == '' then
+                serverStatus.players[playerId].role = 'spectator'
+            else
+                serverStatus.players[playerId].role = slots[playerInfo.slot].type
+            end
         end
     end
 
