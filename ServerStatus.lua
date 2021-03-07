@@ -20,9 +20,9 @@ function ServerStatus.writeStatus()
         end
     end
 
-    local myPlayerId = net.get_my_player_id()
+    local serverPlayerId = net.get_server_id()
     for _, playerId in pairs(net.get_player_list()) do
-        if playerId ~= myPlayerId then
+        if playerId ~= serverPlayerId then
             local playerInfo = net.get_player_info(playerId)
             serverStatus.players[playerId] = {}
             serverStatus.players[playerId].name = playerInfo.name
