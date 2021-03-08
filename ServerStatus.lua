@@ -1,6 +1,7 @@
 local filename = 'ServerStatus.lua'
 
 ServerStatus = {}
+ServerStatus.onlinePlayers = {}
 
 function ServerStatus.writeStatus()
     log.write(filename, log.INFO, 'Collect information')
@@ -21,6 +22,7 @@ function ServerStatus.writeStatus()
     end
 
     local serverPlayerId = net.get_server_id()
+    local modelTime = DCS.getModelTime()
     for _, playerId in pairs(net.get_player_list()) do
         if playerId ~= serverPlayerId then
             local playerInfo = net.get_player_info(playerId)
@@ -31,6 +33,8 @@ function ServerStatus.writeStatus()
             else
                 serverStatus.players[playerId].role = slots[playerInfo.slot].type
             end
+
+            serverStatus.players[playerId].onlineTime = modelTime - ServerStatus.onlinePlayers[playerId]
         end
     end
 
@@ -57,6 +61,14 @@ end
 
 function ServerStatus.OnSimulationPause()
     ServerStatus.writeStatus()
+end
+
+function ServerStatus.OnPlayerConnect(id)
+    ServerStatus.onlinePlayers[id] = DCS.getModelTime()
+end
+
+function ServerStatus.OnPlayerDisconnect(id)
+    ServerStatus.onlinePlayers[id] = nil
 end
 
 log.write(filename, log.INFO, 'Loaded')

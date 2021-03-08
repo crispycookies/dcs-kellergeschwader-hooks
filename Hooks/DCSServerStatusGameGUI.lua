@@ -16,5 +16,13 @@ function dcsServerStatus.onSimulationFrame()
     ServerStatus.OnSimulationFrame()
 end
 
+function dcsServerStatus.onPlayerConnect(id)
+    ServerStatus.OnPlayerConnect(id)
+end
+
+function dcsServerStatus.onPlayerDisconnect(id)
+    ServerStatus.OnPlayerDisconnect(id)
+end
+
 
 DCS.setUserCallbacks(dcsServerStatus)
