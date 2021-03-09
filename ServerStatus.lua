@@ -26,15 +26,17 @@ function ServerStatus.writeStatus()
     for _, playerId in pairs(net.get_player_list()) do
         if playerId ~= serverPlayerId then
             local playerInfo = net.get_player_info(playerId)
-            serverStatus.players[playerId] = {}
-            serverStatus.players[playerId].name = playerInfo.name
+            local player = {}
+            player.id = playerId
+            player.name = playerInfo.name
             if playerInfo.slot == '' then
-                serverStatus.players[playerId].role = 'spectator'
+                player.role = 'spectator'
             else
-                serverStatus.players[playerId].role = slots[playerInfo.slot].type
+                player.role = slots[playerInfo.slot].type
             end
 
-            serverStatus.players[playerId].onlineTime = modelTime - ServerStatus.onlinePlayers[playerId]
+            player.onlineTime = modelTime - ServerStatus.onlinePlayers[playerId]
+            table.insert(serverStatus.players, player)
         end
     end
 
