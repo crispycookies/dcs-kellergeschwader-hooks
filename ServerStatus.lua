@@ -43,7 +43,9 @@ function ServerStatus.writeStatus()
     local filePath = lfs.writedir() .. 'server-status.json'
     log.write(filename, log.INFO, 'Write status to ' .. filePath)
     local file = io.open(filePath,"w")
-    io.write(file, net.lua2json(serverStatus))
+    local jsonString = net.lua2json(serverStatus)
+    jsonString = string.gsub(jsonString, "\"players\":{}", "\"players\":[]")
+    io.write(file, jsonString)
     io.close(file)
     log.write(filename, log.INFO, 'Status written')
 end
