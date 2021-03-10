@@ -50,11 +50,8 @@ function ServerStatus.writeStatus()
     serverStatus.weather = {}
     serverStatus.weather.wind = options.weather.wind
     serverStatus.weather.season = options.weather.season
+    serverStatus.weather.clouds = options.weather.clouds
 
-    serverStatus.weather.clouds = {}
-    serverStatus.weather.clouds.thickness = options.weather.clouds.thickness
-    serverStatus.weather.clouds.density = options.weather.clouds.density
-    serverStatus.weather.clouds.base = options.weather.clouds.base
     serverStatus.time = options.start_time + math.floor(DCS.getModelTime())
 
     local filePath = lfs.writedir() .. 'server-status.json'
