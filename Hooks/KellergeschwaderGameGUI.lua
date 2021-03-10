@@ -3,6 +3,7 @@ local filename = 'KellergeschwaderGameGUI.lua'
 
 log.write(filename, log.INFO, 'DCSCAutoEnd registered')
 loadfile(lfs.writedir()..'Scripts\\ServerStatus.lua')()
+loadfile(lfs.writedir()..'Scripts\\MessageOfTheDay.lua')()
 
 function hooks.onMissionLoadEnd()
     loadfile(lfs.writedir()..'Scripts\\RandomWeather.lua')()
@@ -30,6 +31,7 @@ end
 
 function hooks.onPlayerConnect(id)
     ServerStatus.OnPlayerConnect(id)
+    MessageOfTheDay.OnPlayerConnect(id)
 end
 
 function hooks.onPlayerDisconnect(id)
