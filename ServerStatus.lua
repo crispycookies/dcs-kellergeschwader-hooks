@@ -46,6 +46,17 @@ function ServerStatus.writeStatus()
         end
     end
 
+    local options = DCS.getCurrentMission().mission
+    serverStatus.weather = {}
+    serverStatus.weather.wind = options.weather.wind
+    serverStatus.weather.season = options.weather.season
+
+    serverStatus.weather.clouds = {}
+    serverStatus.weather.clouds = options.weather.clouds.thickness
+    serverStatus.weather.clouds = options.weather.clouds.density
+    serverStatus.weather.clouds = options.weather.clouds.base
+    serverStatus.time = options.start_time + math.floor(DCS.getModelTime())
+
     local filePath = lfs.writedir() .. 'server-status.json'
     log.write(filename, log.INFO, 'Write status to ' .. filePath)
     local file = io.open(filePath,"w")
