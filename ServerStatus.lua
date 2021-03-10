@@ -1,9 +1,12 @@
 local filename = 'ServerStatus.lua'
 
-ServerStatus = {}
-ServerStatus.OnlinePlayers = {}
-ServerStatus.OnlinePlayers[net.get_server_id()] = {}
-ServerStatus.OnlinePlayers[net.get_server_id()].JoinTime = os.time()
+if ServerStatus == nil then
+    ServerStatus = {}
+    ServerStatus.OnlinePlayers = {}
+    ServerStatus.OnlinePlayers[net.get_server_id()] = {}
+    ServerStatus.OnlinePlayers[net.get_server_id()].JoinTime = os.time()
+    ServerStatus.lastCheck = -50 -- First check after 10 seconds
+end
 
 function ServerStatus.writeStatus()
     log.write(filename, log.INFO, 'Collect information')
@@ -11,6 +14,7 @@ function ServerStatus.writeStatus()
     local serverStatus = {}
     serverStatus.missionsNames = {}
     serverStatus.players = {}
+    serverStatus.missionTimeLeft = math.floor(AutoEnd.TimeLeft)
 
     for _, missionName in pairs(net.missionlist_get().missionList) do
         table.insert(serverStatus.missionsNames, missionName)
@@ -37,7 +41,7 @@ function ServerStatus.writeStatus()
                 player.role = slots[playerInfo.slot].type
             end
 
-            player.onlineTime = currentTime - ServerStatus.OnlinePlayers[playerId].JoinTime
+            player.onlineTime = math.floor(currentTime - ServerStatus.OnlinePlayers[playerId].JoinTime)
             table.insert(serverStatus.players, player)
         end
     end
@@ -52,7 +56,6 @@ function ServerStatus.writeStatus()
     log.write(filename, log.INFO, 'Status written')
 end
 
-ServerStatus.lastCheck = -50 -- First check after 10 seconds
 function ServerStatus.OnSimulationFrame()
     local modelTime = DCS.getModelTime()
     if modelTime - ServerStatus.lastCheck >= 60 then
