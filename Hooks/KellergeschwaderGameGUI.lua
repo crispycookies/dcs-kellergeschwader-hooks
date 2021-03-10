@@ -2,9 +2,9 @@ local hooks = {}
 local filename = 'KellergeschwaderGameGUI.lua'
 
 log.write(filename, log.INFO, 'DCSCAutoEnd registered')
+loadfile(lfs.writedir()..'Scripts\\ServerStatus.lua')()
 
 function hooks.onMissionLoadEnd()
-    loadfile(lfs.writedir()..'Scripts\\ServerStatus.lua')()
     loadfile(lfs.writedir()..'Scripts\\RandomWeather.lua')()
     loadfile(lfs.writedir()..'Scripts\\AutoEnd.lua')()
     loadfile(lfs.writedir()..'Scripts\\ChatCommands.lua')()
@@ -13,12 +13,10 @@ function hooks.onMissionLoadEnd()
 end
 
 function hooks.onChatMessage(message, from)
-    AutoEnd.OnChatMessage(message, from)
     ChatCommands.OnChatMessage(message, from)
 end
 
 function hooks.onGameEvent(eventName,arg1,arg2,arg3,arg4)
-    ChatCommands.OnGameEvent(eventName,arg1,arg2,arg3,arg4)
 end
 
 function hooks.onSimulationPause()

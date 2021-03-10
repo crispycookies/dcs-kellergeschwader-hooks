@@ -9,9 +9,13 @@ local msg5MinLeftSend = false
 local restarted = false
 local totalTime = 21600
 
+AutoEnd.TimeLeft = totalTime
+
 function AutoEnd.OnSimulationFrame()
-    if DCS.isMultiplayer() and DCS.isServer() then
+    if DCS.isMultiplayer() and DCS.isServer() then        
         local modelTime = DCS.getModelTime()
+        AutoEnd.TimeLeft = totalTime - modelTime
+
         -- after 4 hours
         if msg2HoursLeftSend == false and modelTime >= 14400 then
             msg2HoursLeftSend = true
@@ -38,16 +42,6 @@ function AutoEnd.OnSimulationFrame()
             restarted = true
             RandomWeather.LoadNextMission()
         end
-    end
-end
-
-function AutoEnd.OnChatMessage(message, from)
-    if message == "--time" then
-        local modelTime = DCS.getModelTime()
-        local hoursLeft = math.floor((totalTime - modelTime) / 60 / 60)
-        local minutesLeft = math.floor((totalTime - modelTime) / 60 % 60)
-        local secondsLeft = math.floor((totalTime - modelTime) % 60)
-        net.send_chat_to("Mission end in " .. hoursLeft .. "h " .. minutesLeft .. "m " .. secondsLeft .. "s" , from)
     end
 end
 

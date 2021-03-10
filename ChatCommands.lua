@@ -1,6 +1,6 @@
 local filename = 'ChatCommands.lua'
 
-function getPlayerCount()
+local function getPlayerCount()
     local count = 0
     for _ in pairs(net.get_player_list()) do
         count = count + 1
@@ -115,25 +115,98 @@ function VOTING:OnChatMessage(message, from)
     end
 end
 
+--- @type CHATCOMMAND
+-- @field #boolean VoteActive Is voting active
+-- @field #number VotesNeeded Number of votes needed to execute callback
+-- @field #number CurrentVotes Actual number of voted
+-- @field #table PlayerIDsVoted Array of player ids already voted
+-- @field #string Command The command to listen to
+-- @field #function Callback Callback if voting was successfull
+-- @field #lastStartTime The DCS timer id for the voting reset
+-- @type CHATCOMMAND
+
+--- VOTING CLASS
+-- @field #VOTING VOTING
+CHATCOMMAND = {}
+CHATCOMMAND.__index = CHATCOMMAND
+
+--- Create new CHATCOMMAND
+-- @param #CHATCOMMAND self
+-- @param #string command The command to listen to
+-- @param #string callback Callback to execute. Parameter given to the callback is the requester player id
+-- @return #CHATCOMMAND
+function CHATCOMMAND.New(command, callback)
+    local self = {}
+    setmetatable(self, CHATCOMMAND)
+    self.Command = command
+    self.Callback = callback
+    return self
+end
+
+function CHATCOMMAND:OnChatMessage(message, from)
+    if message == self.Command then
+        self.Callback(from)
+    end
+end
 
 
 
 
 ChatCommands = {}
+local commands = {}
 
-local skipVote = VOTING.New("--skip",
-function()
-    log.write(filename, log.INFO, "Skip voting successfull. Next mission will be started.")
-    net.send_chat("Voting successfull. Next mission will be started.", true)
-    RandomWeather.LoadNextMission()
-end)
+table.insert(commands, VOTING.New("--skip",
+    function()
+        log.write(filename, log.INFO, "Skip voting successfull. Next mission will be started.")
+        net.send_chat("Voting successfull. Next mission will be started.", true)
+        RandomWeather.LoadNextMission()
+    end))
 
-function ChatCommands.OnGameEvent(eventName, arg1, arg2, arg3, arg4)
+table.insert(commands, CHATCOMMAND.New("--time",
+    function()
+        local hoursLeft = math.floor((AutoEnd.TimeLeft) / 60 / 60)
+        local minutesLeft = math.floor((AutoEnd.TimeLeft) / 60 % 60)
+        local secondsLeft = math.floor((AutoEnd.TimeLeft) % 60)
+        net.send_chat("Mission end in " .. hoursLeft .. "h " .. minutesLeft .. "m " .. secondsLeft .. "s", true)
+    end))
+
+table.insert(commands, VOTING.New("--restart",
+    function()
+        log.write(filename, log.INFO, "Restart voting successfull. Mission will be restarted.")
+        net.send_chat("Voting successfull. Mission will be restarted.", true)
+        
+        local missionIndex = net.missionlist_get().current
+        net.missionlist_run(missionIndex)
+    end))
+
+table.insert(commands, CHATCOMMAND.New("--mytime",
+    function(playerId)
+        local time = os.time() - ServerStatus.OnlinePlayers[playerId].JoinTime
+        local hours = string.sub("00" .. tostring(math.floor(time / 60 / 60)), -2)
+        local minutes = string.sub("00" .. tostring(math.floor(time / 60 % 60)), -2)
+        local seconds = string.sub("00" .. tostring(math.floor(time % 60)), -2)
+        net.send_chat_to(hours .. ":" .. minutes .. ":" .. seconds .. " h", playerId)
+    end))
+
+local function sendHelpToPlayer(playerId)
+    net.send_chat_to("Available commands:", playerId)
+    net.send_chat_to("--help      available commands", playerId)
+    net.send_chat_to("--time      time until restart", playerId)
+    net.send_chat_to("--skip       vote next mission", playerId)
+    net.send_chat_to("--restart   vote mission restart", playerId)
+    net.send_chat_to("--mytime  your session time", playerId)
 end
+
+table.insert(commands, CHATCOMMAND.New("--help", sendHelpToPlayer))
+table.insert(commands, CHATCOMMAND.New("-help", sendHelpToPlayer))
+table.insert(commands, CHATCOMMAND.New("--h", sendHelpToPlayer))
+table.insert(commands, CHATCOMMAND.New("-h", sendHelpToPlayer))
 
 function ChatCommands.OnChatMessage(message, from)
     if DCS.isServer() then
-        skipVote:OnChatMessage(message, from)
+        for _, cmd in pairs(commands) do
+            cmd:OnChatMessage(message, from)
+        end
     end
 end
 
