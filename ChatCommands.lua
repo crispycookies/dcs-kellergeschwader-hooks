@@ -1,4 +1,4 @@
-local filename = 'DCSChatVoting.lua'
+local filename = 'ChatCommands.lua'
 
 function getPlayerCount()
     local count = 0
@@ -119,7 +119,7 @@ end
 
 
 
-DCSChatVoting = {}
+ChatCommands = {}
 
 local skipVote = VOTING.New("--skip",
 function()
@@ -128,13 +128,13 @@ function()
     RandomWeather.LoadNextMission()
 end)
 
-function DCSChatVoting.OnGameEvent(eventName, arg1, arg2, arg3, arg4)
+function ChatCommands.OnGameEvent(eventName, arg1, arg2, arg3, arg4)
 end
 
-function DCSChatVoting.OnChatMessage(message, from)
+function ChatCommands.OnChatMessage(message, from)
     if DCS.isServer() then
         skipVote:OnChatMessage(message, from)
     end
 end
 
-log.write(filename, log.INFO, 'Start DCSChatVoting')
+log.write(filename, log.INFO, 'Start ChatCommands')

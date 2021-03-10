@@ -1,5 +1,5 @@
-local filename = 'DCSAutoEnd.lua'
-DCSAutoEnd = {}
+local filename = 'AutoEnd.lua'
+AutoEnd = {}
 
 local msg2HoursLeftSend = false
 local msg1HourLefSend = false
@@ -9,7 +9,7 @@ local msg5MinLeftSend = false
 local restarted = false
 local totalTime = 21600
 
-function DCSAutoEnd.OnSimulationFrame()
+function AutoEnd.OnSimulationFrame()
     if DCS.isMultiplayer() and DCS.isServer() then
         local modelTime = DCS.getModelTime()
         -- after 4 hours
@@ -41,7 +41,7 @@ function DCSAutoEnd.OnSimulationFrame()
     end
 end
 
-function DCSAutoEnd.OnChatMessage(message, from)
+function AutoEnd.OnChatMessage(message, from)
     if message == "--time" then
         local modelTime = DCS.getModelTime()
         local hoursLeft = math.floor((totalTime - modelTime) / 60 / 60)
@@ -51,4 +51,4 @@ function DCSAutoEnd.OnChatMessage(message, from)
     end
 end
 
-log.write(filename, log.INFO, 'Start DCSAutoEnd')
+log.write(filename, log.INFO, 'Start AutoEnd')
