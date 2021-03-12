@@ -1,6 +1,7 @@
 local filename = 'ServerStatus.lua'
 
 if ServerStatus == nil then
+    log.write(filename, log.INFO, 'Init serverStatus')
     ServerStatus = {}
     ServerStatus.OnlinePlayers = {}
     ServerStatus.OnlinePlayers[net.get_server_id()] = {}

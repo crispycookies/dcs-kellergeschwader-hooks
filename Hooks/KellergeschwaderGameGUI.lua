@@ -1,23 +1,30 @@
-local hooks = {}
 local filename = 'KellergeschwaderGameGUI.lua'
+log.set_output("KellergeschwaderHooks", '', log.ALL, log.FULL)
+-- log.set_output("KellergeschwaderHooks", 'ChatCommands.lua', log.ALL, log.FULL)
 
-log.write(filename, log.INFO, 'DCSCAutoEnd registered')
+log.write(filename, log.INFO, 'KellergeschwaderGameGUI loaded')
+local hooks = {}
 
-function hooks.onMissionLoadEnd()
+function hooks.onNetMissionChanged()
     loadfile(lfs.writedir()..'Scripts\\ServerStatus.lua')()
     loadfile(lfs.writedir()..'Scripts\\MessageOfTheDay.lua')()
     loadfile(lfs.writedir()..'Scripts\\RandomWeather.lua')()
     loadfile(lfs.writedir()..'Scripts\\AutoEnd.lua')()
     loadfile(lfs.writedir()..'Scripts\\ChatCommands.lua')()
+    loadfile(lfs.writedir()..'Scripts\\PlayerStats.lua')()
+end
 
+function hooks.onMissionLoadEnd()
     ServerStatus.OnMissionLoadEnd()
+    PlayerStats.OnMissionLoadEnd()
 end
 
 function hooks.onChatMessage(message, from)
     ChatCommands.OnChatMessage(message, from)
 end
 
-function hooks.onGameEvent(eventName,arg1,arg2,arg3,arg4)
+function hooks.onGameEvent(eventName, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+    PlayerStats.OnGameEvent(eventName, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 end
 
 function hooks.onSimulationPause()
@@ -25,18 +32,29 @@ function hooks.onSimulationPause()
 end
 
 function hooks.onSimulationFrame()
-    ServerStatus.OnSimulationFrame()
-    AutoEnd.OnSimulationFrame()
+    if ServerStatus ~= nil then
+        ServerStatus.OnSimulationFrame()
+    end
+
+    if AutoEnd ~= nil then
+        AutoEnd.OnSimulationFrame()
+    end
 end
 
 function hooks.onPlayerConnect(id)
     ServerStatus.OnPlayerConnect(id)
     MessageOfTheDay.OnPlayerConnect(id)
+    PlayerStats.OnPlayerConnect(id)
 end
 
 function hooks.onPlayerDisconnect(id)
     ServerStatus.OnPlayerDisconnect(id)
+    PlayerStats.OnPlayerDisconnect(id)
+end
+
+function hooks.onSimulationStop()
+    PlayerStats.OnSimulationStop()
 end
 
 DCS.setUserCallbacks(hooks)
-log.write(filename, log.INFO, 'KellergeschwaderGameGUI registered')
+log.write(filename, log.INFO, 'Hooks registered')
