@@ -11,12 +11,11 @@ function hooks.onNetMissionChanged()
     loadfile(lfs.writedir()..'Scripts\\RandomWeather.lua')()
     loadfile(lfs.writedir()..'Scripts\\AutoEnd.lua')()
     loadfile(lfs.writedir()..'Scripts\\ChatCommands.lua')()
-    loadfile(lfs.writedir()..'Scripts\\PlayerStats.lua')()
+    loadfile(lfs.writedir()..'Scripts\\PlayerStatsSimple.lua')()
 end
 
 function hooks.onMissionLoadEnd()
     ServerStatus.OnMissionLoadEnd()
-    PlayerStats.OnMissionLoadEnd()
 end
 
 function hooks.onChatMessage(message, from)
@@ -43,13 +42,14 @@ end
 
 function hooks.onPlayerConnect(id)
     ServerStatus.OnPlayerConnect(id)
-    MessageOfTheDay.OnPlayerConnect(id)
-    PlayerStats.OnPlayerConnect(id)
+end
+
+function hooks.onNetMissionEnd()
+    PlayerStats.OnNetMissionEnd()
 end
 
 function hooks.onPlayerDisconnect(id)
     ServerStatus.OnPlayerDisconnect(id)
-    PlayerStats.OnPlayerDisconnect(id)
 end
 
 function hooks.onSimulationStop()
