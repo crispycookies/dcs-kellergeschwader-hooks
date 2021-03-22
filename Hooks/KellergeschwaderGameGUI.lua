@@ -42,6 +42,7 @@ end
 
 function hooks.onPlayerConnect(id)
     ServerStatus.OnPlayerConnect(id)
+    PlayerStats.OnPlayerConnect(id)
 end
 
 function hooks.onNetMissionEnd()
@@ -50,6 +51,7 @@ end
 
 function hooks.onPlayerDisconnect(id)
     ServerStatus.OnPlayerDisconnect(id)
+    PlayerStats.OnPlayerDisconnect(id)
 end
 
 function hooks.onSimulationStop()

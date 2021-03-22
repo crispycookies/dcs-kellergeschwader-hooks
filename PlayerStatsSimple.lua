@@ -7,13 +7,15 @@ function PlayerStats.getTime()
     return tostring(os.time(os.date("!*t")))
 end
 
-function PlayerStats.ConnectEvent(playerID, name)
+function PlayerStats.ConnectEvent(playerID)
     local info = net.get_player_info(playerID)
     PlayerStats.players[playerID] = {}
     PlayerStats.players[playerID].csvEvents = {}
     PlayerStats.players[playerID].name = info.name
     PlayerStats.players[playerID].ucid = info.ucid
     PlayerStats.players[playerID].time = PlayerStats.getTime()
+
+    table.insert(PlayerStats.players[playerID].csvEvents, PlayerStats.getTime() .. ';connect')
 end
 
 function PlayerStats.ChangeSlotEvent(playerID, slotID, prevSide)
@@ -43,35 +45,39 @@ function PlayerStats.ChangeSlotEvent(playerID, slotID, prevSide)
 end
 
 function PlayerStats.KillEvent(killerPlayerID, killerUnitType, killerSide, victimPlayerID, victimUnitType, victimSide, weaponName)
-    if victimPlayerID ~= -1 then
-        victimPlayerID = PlayerStats.players[victimPlayerID].Ucid
-    end
+    if PlayerStats.players[killerPlayerID] ~= nil then
+        if victimPlayerID ~= -1 and PlayerStats.players[victimPlayerID] then
+            victimPlayerID = PlayerStats.players[victimPlayerID].ucid
+        end
 
-    table.insert(PlayerStats.players[killerPlayerID].csvEvents,
-        PlayerStats.getTime() .. ';kill;' ..
-        killerUnitType .. ';' ..
-        tostring(killerSide) .. ';' ..
-        tostring(victimPlayerID) .. ';' ..
-        victimUnitType .. ';' ..
-        tostring(victimSide) .. ';' ..
-        weaponName
-    )
+        table.insert(PlayerStats.players[killerPlayerID].csvEvents,
+            PlayerStats.getTime() .. ';kill;' ..
+            killerUnitType .. ';' ..
+            tostring(killerSide) .. ';' ..
+            tostring(victimPlayerID) .. ';' ..
+            victimUnitType .. ';' ..
+            tostring(victimSide) .. ';' ..
+            weaponName
+        )
+    end
 end
 
 function PlayerStats.KilledByEvent(killerPlayerID, killerUnitType, killerSide, victimPlayerID, victimUnitType, victimSide, weaponName)
-    if killerPlayerID ~= -1 then
-        killerPlayerID = PlayerStats.players[killerPlayerID].Ucid
-    end
+    if PlayerStats.players[victimPlayerID] ~= nil then
+        if killerPlayerID ~= -1 and PlayerStats.players[killerPlayerID] then
+            killerPlayerID = PlayerStats.players[killerPlayerID].ucid
+        end
 
-    table.insert(PlayerStats.players[victimPlayerID].csvEvents,
-        PlayerStats.getTime() .. ';killed_by;' ..
-        killerUnitType .. ';' ..
-        tostring(killerSide) .. ';' ..
-        tostring(victimPlayerID) .. ';' ..
-        victimUnitType .. ';' ..
-        tostring(victimSide) .. ';' ..
-        weaponName
-    )
+        table.insert(PlayerStats.players[victimPlayerID].csvEvents,
+            PlayerStats.getTime() .. ';killed_by;' ..
+            killerUnitType .. ';' ..
+            tostring(killerSide) .. ';' ..
+            tostring(killerPlayerID) .. ';' ..
+            victimUnitType .. ';' ..
+            tostring(victimSide) .. ';' ..
+            weaponName
+        )
+    end
 end
 
 function PlayerStats.SelfKillEvent(playerID)
@@ -112,8 +118,14 @@ end
 
 function PlayerStats.FriendlyFireEvent(playerID, weaponName, victimPlayerID)
     if PlayerStats.players[playerID] ~= nil then
-        local victimUcid = PlayerStats.players[victimPlayerID].Ucid
+        local victimUcid = PlayerStats.players[victimPlayerID].ucid
         table.insert(PlayerStats.players[playerID].csvEvents, PlayerStats.getTime() .. ';friendly_fire;' .. weaponName .. ';' .. victimUcid)
+    end
+end
+
+function PlayerStats.DisconnectEvent(playerID)
+    if PlayerStats.players[playerID] ~= nil then
+        table.insert(PlayerStats.players[playerID].csvEvents, PlayerStats.getTime() .. ';disconnect')
     end
 end
 
@@ -140,38 +152,54 @@ function PlayerStats.SavePlayer(player)
 end
 
 
+
+function PlayerStats.OnPlayerConnect(id)
+    PlayerStats.ConnectEvent(id)
+end
+
+function PlayerStats.OnPlayerDisconnect(id, err_code)
+    if PlayerStats.players[id] ~= nil then
+        PlayerStats.DisconnectEvent(id)
+        PlayerStats.SavePlayer(PlayerStats.players[id])
+        PlayerStats.players[id] = nil
+    end
+end
+
+local serverPlayerId = net.get_server_id()
+
 function PlayerStats.OnGameEvent(eventName, playerID, arg2, arg3, arg4, arg5, arg6, arg7)
-    if playerID ~= -1 then
-        if eventName == 'connect' then
-            PlayerStats.ConnectEvent(playerID, arg2)
-        elseif eventName == 'change_slot' then
-            PlayerStats.ChangeSlotEvent(playerID, arg2, arg3)
-        elseif eventName == 'takeoff' then
-            PlayerStats.TakeoffEvent(playerID, arg2, arg3)
-        elseif eventName == 'pilot_death' then
-            PlayerStats.PilotDeathEvent(playerID, arg2)
-        elseif eventName == "self_kill" then
-            PlayerStats.SelfKillEvent(playerID)
-        elseif eventName == "crash" then
-            PlayerStats.CrashEvent(playerID, arg2)
-        elseif eventName == "eject" then
-            PlayerStats.EjectEvent(playerID, arg2)
-        elseif eventName == "landing" then
-            PlayerStats.LandingEvent(playerID, arg2, arg3)
-        elseif eventName == "kill" then
-            PlayerStats.KillEvent(playerID, arg2, arg3, arg4, arg5, arg6, arg7)
-        elseif eventName == "friendly_fire" then
-            PlayerStats.FriendlyFireEvent(playerID, arg2, arg3)
-        elseif eventName == "disconnect" or eventName == "mission_end" then
-            if PlayerStats.players[playerID] ~= nil then
-                PlayerStats.SavePlayer(PlayerStats.players[playerID])
-                PlayerStats.players[playerID] = nil
+    if playerID ~= serverPlayerId and arg4 ~= serverPlayerId then
+        if playerID ~= -1 then
+            if eventName == 'change_slot' then
+                PlayerStats.ChangeSlotEvent(playerID, arg2, arg3)
+            elseif eventName == 'takeoff' then
+                PlayerStats.TakeoffEvent(playerID, arg2, arg3)
+            elseif eventName == 'pilot_death' then
+                PlayerStats.PilotDeathEvent(playerID, arg2)
+            elseif eventName == "self_kill" then
+                PlayerStats.SelfKillEvent(playerID)
+            elseif eventName == "crash" then
+                PlayerStats.CrashEvent(playerID, arg2)
+            elseif eventName == "eject" then
+                PlayerStats.EjectEvent(playerID, arg2)
+            elseif eventName == "landing" then
+                PlayerStats.LandingEvent(playerID, arg2, arg3)
+            elseif eventName == "kill" then
+                PlayerStats.KillEvent(playerID, arg2, arg3, arg4, arg5, arg6, arg7)
+            elseif eventName == "friendly_fire" then
+                PlayerStats.FriendlyFireEvent(playerID, arg2, arg3)
+            elseif eventName == "mission_end" then
+                if PlayerStats.players[playerID] ~= nil then
+                    PlayerStats.DisconnectEvent(playerID, arg2, arg3, arg4)
+                    PlayerStats.SavePlayer(PlayerStats.players[playerID])
+                    PlayerStats.players[playerID] = nil
+                end
             end
         end
-    end
 
-    if arg4 ~= -1 then
-        PlayerStats.KilledByEvent(playerID, arg2, arg3, arg4, arg5, arg6, arg7)
+        if arg4 ~= -1 then
+            PlayerStats.KilledByEvent(playerID, arg2, arg3, arg4, arg5, arg6, arg7)
+        end
     end
 end
 
@@ -193,5 +221,10 @@ function PlayerStats.OnSimulationStop()
     end
 end
 
+for _, playerId in pairs(net.get_player_list()) do
+    if playerId ~= serverPlayerId then
+        PlayerStats.ConnectEvent(playerId)
+    end
+end
+
 log.write(filename, log.INFO, 'Loaded')
--- PlayerStats.ConnectEvent(net.get_server_id(), 'DEBUG')
