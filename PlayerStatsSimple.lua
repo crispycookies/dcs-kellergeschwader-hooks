@@ -190,7 +190,7 @@ function PlayerStats.OnGameEvent(eventName, playerID, arg2, arg3, arg4, arg5, ar
                 PlayerStats.FriendlyFireEvent(playerID, arg2, arg3)
             elseif eventName == "mission_end" then
                 if PlayerStats.players[playerID] ~= nil then
-                    PlayerStats.DisconnectEvent(playerID, arg2, arg3, arg4)
+                    PlayerStats.DisconnectEvent(playerID)
                     PlayerStats.SavePlayer(PlayerStats.players[playerID])
                     PlayerStats.players[playerID] = nil
                 end
