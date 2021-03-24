@@ -168,13 +168,7 @@ end
 local serverPlayerId = net.get_server_id()
 
 function PlayerStats.OnGameEvent(eventName, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
-    if eventName == "mission_end" then
-        for playerId, _ in pairs(PlayerStats.players) do
-            PlayerStats.DisconnectEvent(playerId)
-            PlayerStats.SavePlayer(PlayerStats.players[arg1])
-            PlayerStats.players[arg1] = nil
-        end
-    elseif arg1 ~= serverPlayerId and arg4 ~= serverPlayerId then
+    if eventName ~= "mission_end" and arg1 ~= serverPlayerId and arg4 ~= serverPlayerId then
         if arg1 ~= -1 then
             if eventName == 'change_slot' then
                 PlayerStats.ChangeSlotEvent(arg1, arg2, arg3)
@@ -206,6 +200,7 @@ end
 function PlayerStats.OnNetMissionEnd()
     for playerID, _ in pairs(PlayerStats.players) do
             if PlayerStats.players[playerID] ~= nil then
+                PlayerStats.DisconnectEvent(playerID)
                 PlayerStats.SavePlayer(PlayerStats.players[playerID])
                 PlayerStats.players[playerID] = nil
             end
@@ -215,6 +210,7 @@ end
 function PlayerStats.OnSimulationStop()
     for playerID, _ in pairs(PlayerStats.players) do
             if PlayerStats.players[playerID] ~= nil then
+                PlayerStats.DisconnectEvent(playerID)
                 PlayerStats.SavePlayer(PlayerStats.players[playerID])
                 PlayerStats.players[playerID] = nil
             end
