@@ -43,6 +43,7 @@ end
 function hooks.onPlayerConnect(id)
     ServerStatus.OnPlayerConnect(id)
     PlayerStats.OnPlayerConnect(id)
+    MessageOfTheDay.OnPlayerConnect(id)
 end
 
 function hooks.onNetMissionEnd()
