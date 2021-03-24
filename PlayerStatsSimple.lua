@@ -167,38 +167,38 @@ end
 
 local serverPlayerId = net.get_server_id()
 
-function PlayerStats.OnGameEvent(eventName, playerID, arg2, arg3, arg4, arg5, arg6, arg7)
-    if playerID ~= serverPlayerId and arg4 ~= serverPlayerId then
-        if playerID ~= -1 then
+function PlayerStats.OnGameEvent(eventName, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+    if eventName == "mission_end" then
+        for playerId, _ in pairs(PlayerStats.players) do
+            PlayerStats.DisconnectEvent(playerId)
+            PlayerStats.SavePlayer(PlayerStats.players[arg1])
+            PlayerStats.players[arg1] = nil
+        end
+    elseif arg1 ~= serverPlayerId and arg4 ~= serverPlayerId then
+        if arg1 ~= -1 then
             if eventName == 'change_slot' then
-                PlayerStats.ChangeSlotEvent(playerID, arg2, arg3)
+                PlayerStats.ChangeSlotEvent(arg1, arg2, arg3)
             elseif eventName == 'takeoff' then
-                PlayerStats.TakeoffEvent(playerID, arg2, arg3)
+                PlayerStats.TakeoffEvent(arg1, arg2, arg3)
             elseif eventName == 'pilot_death' then
-                PlayerStats.PilotDeathEvent(playerID, arg2)
+                PlayerStats.PilotDeathEvent(arg1, arg2)
             elseif eventName == "self_kill" then
-                PlayerStats.SelfKillEvent(playerID)
+                PlayerStats.SelfKillEvent(arg1)
             elseif eventName == "crash" then
-                PlayerStats.CrashEvent(playerID, arg2)
+                PlayerStats.CrashEvent(arg1, arg2)
             elseif eventName == "eject" then
-                PlayerStats.EjectEvent(playerID, arg2)
+                PlayerStats.EjectEvent(arg1, arg2)
             elseif eventName == "landing" then
-                PlayerStats.LandingEvent(playerID, arg2, arg3)
+                PlayerStats.LandingEvent(arg1, arg2, arg3)
             elseif eventName == "kill" then
-                PlayerStats.KillEvent(playerID, arg2, arg3, arg4, arg5, arg6, arg7)
+                PlayerStats.KillEvent(arg1, arg2, arg3, arg4, arg5, arg6, arg7)
             elseif eventName == "friendly_fire" then
-                PlayerStats.FriendlyFireEvent(playerID, arg2, arg3)
-            elseif eventName == "mission_end" then
-                if PlayerStats.players[playerID] ~= nil then
-                    PlayerStats.DisconnectEvent(playerID)
-                    PlayerStats.SavePlayer(PlayerStats.players[playerID])
-                    PlayerStats.players[playerID] = nil
-                end
+                PlayerStats.FriendlyFireEvent(arg1, arg2, arg3)
             end
         end
 
         if arg4 ~= -1 then
-            PlayerStats.KilledByEvent(playerID, arg2, arg3, arg4, arg5, arg6, arg7)
+            PlayerStats.KilledByEvent(arg1, arg2, arg3, arg4, arg5, arg6, arg7)
         end
     end
 end
