@@ -170,7 +170,8 @@ end
 
 
 function PlayerStats.OnGameEvent(eventName, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
-    if eventName ~= "mission_end" then
+    local serverPlayerID = net.get_server_id()
+    if eventName ~= "mission_end" and arg1 ~= serverPlayerID and arg4 ~= serverPlayerID then
         if arg1 ~= -1 then
             if eventName == 'change_slot' then
                 PlayerStats.ChangeSlotEvent(arg1, arg2, arg3)
