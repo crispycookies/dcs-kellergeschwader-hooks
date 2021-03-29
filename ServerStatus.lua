@@ -1,13 +1,11 @@
 local filename = 'ServerStatus.lua'
 
-if ServerStatus == nil then
-    log.write(filename, log.INFO, 'Init serverStatus')
-    ServerStatus = {}
-    ServerStatus.OnlinePlayers = {}
-    ServerStatus.OnlinePlayers[net.get_server_id()] = {}
-    ServerStatus.OnlinePlayers[net.get_server_id()].JoinTime = os.time()
-    ServerStatus.lastCheck = -50 -- First check after 10 seconds
-end
+log.write(filename, log.INFO, 'Init serverStatus')
+ServerStatus = {}
+ServerStatus.OnlinePlayers = {}
+ServerStatus.OnlinePlayers[net.get_server_id()] = {}
+ServerStatus.OnlinePlayers[net.get_server_id()].JoinTime = os.time()
+ServerStatus.lastCheck = -50 -- First check after 10 seconds
 
 function ServerStatus.writeStatus()
     log.write(filename, log.INFO, 'Collect information')
@@ -75,6 +73,7 @@ end
 
 function ServerStatus.OnMissionLoadEnd()
     ServerStatus.writeStatus()
+    ServerStatus.lastCheck = -50
 end
 
 function ServerStatus.OnSimulationPause()

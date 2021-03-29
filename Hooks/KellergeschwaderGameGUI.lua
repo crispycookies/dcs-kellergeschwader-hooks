@@ -4,17 +4,19 @@ log.set_output("KellergeschwaderHooks", '', log.ALL, log.FULL)
 
 log.write(filename, log.INFO, 'KellergeschwaderGameGUI loaded')
 local hooks = {}
+loadfile(lfs.writedir()..'Scripts\\ServerStatus.lua')()
+loadfile(lfs.writedir()..'Scripts\\MessageOfTheDay.lua')()
+loadfile(lfs.writedir()..'Scripts\\RandomWeather.lua')()
+loadfile(lfs.writedir()..'Scripts\\AutoEnd.lua')()
+loadfile(lfs.writedir()..'Scripts\\ChatCommands.lua')()
+loadfile(lfs.writedir()..'Scripts\\PlayerStatsSimple.lua')()
 
 function hooks.onNetMissionChanged()
-    loadfile(lfs.writedir()..'Scripts\\ServerStatus.lua')()
-    loadfile(lfs.writedir()..'Scripts\\MessageOfTheDay.lua')()
-    loadfile(lfs.writedir()..'Scripts\\RandomWeather.lua')()
-    loadfile(lfs.writedir()..'Scripts\\AutoEnd.lua')()
-    loadfile(lfs.writedir()..'Scripts\\ChatCommands.lua')()
-    loadfile(lfs.writedir()..'Scripts\\PlayerStatsSimple.lua')()
 end
 
 function hooks.onMissionLoadEnd()
+    AutoEnd.OnMissionLoadEnd()
+    PlayerStats.OnMissionLoadEnd()
     ServerStatus.OnMissionLoadEnd()
 end
 
@@ -31,13 +33,8 @@ function hooks.onSimulationPause()
 end
 
 function hooks.onSimulationFrame()
-    if ServerStatus ~= nil then
-        ServerStatus.OnSimulationFrame()
-    end
-
-    if AutoEnd ~= nil then
-        AutoEnd.OnSimulationFrame()
-    end
+    AutoEnd.OnSimulationFrame()
+    ServerStatus.OnSimulationFrame()
 end
 
 function hooks.onPlayerConnect(id)

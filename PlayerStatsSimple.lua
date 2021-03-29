@@ -10,6 +10,7 @@ end
 function PlayerStats.ConnectEvent(playerID)
     local info = net.get_player_info(playerID)
     PlayerStats.players[playerID] = {}
+    PlayerStats.players[playerID].localID = playerID
     PlayerStats.players[playerID].csvEvents = {}
     PlayerStats.players[playerID].name = info.name
     PlayerStats.players[playerID].ucid = info.ucid
@@ -130,24 +131,26 @@ function PlayerStats.DisconnectEvent(playerID)
 end
 
 function PlayerStats.SavePlayer(player)
-    local csv = ''
-    for _, line in pairs(player.csvEvents) do
-        csv = csv .. line .. '\n'
-    end
+    if player.localID ~= net.get_server_id() then
+        local csv = ''
+        for _, line in pairs(player.csvEvents) do
+            csv = csv .. line .. '\n'
+        end
 
-    if csv ~= '' then
-        local filePath = lfs.writedir() .. '\\PlayerStats\\' .. 
-            player.time .. '-[' ..
-            DCS.getMissionName() .. ']-[' ..
-            player.name .. ']-[' ..
-            player.ucid .. '].csv'
-        log.write(filename, log.INFO, 'Write playerStats to ' .. filePath)
+        if csv ~= '' then
+            local filePath = lfs.writedir() .. '\\PlayerStats\\' .. 
+                player.time .. '-[' ..
+                DCS.getMissionName() .. ']-[' ..
+                player.name .. ']-[' ..
+                player.ucid .. '].csv'
+            log.write(filename, log.INFO, 'Write playerStats to ' .. filePath)
 
-        local file = io.open(filePath,"a")
-        io.write(file, csv)
-        io.close(file)
-        player.csvEvents = {}
-        log.write(filename, log.INFO, 'Player stats written')
+            local file = io.open(filePath,"a")
+            io.write(file, csv)
+            io.close(file)
+            player.csvEvents = {}
+            log.write(filename, log.INFO, 'Player stats written')
+        end
     end
 end
 
@@ -165,10 +168,9 @@ function PlayerStats.OnPlayerDisconnect(id, err_code)
     end
 end
 
-local serverPlayerId = net.get_server_id()
 
 function PlayerStats.OnGameEvent(eventName, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
-    if eventName ~= "mission_end" and arg1 ~= serverPlayerId and arg4 ~= serverPlayerId then
+    if eventName ~= "mission_end" then
         if arg1 ~= -1 then
             if eventName == 'change_slot' then
                 PlayerStats.ChangeSlotEvent(arg1, arg2, arg3)
@@ -217,8 +219,8 @@ function PlayerStats.OnSimulationStop()
     end
 end
 
-for _, playerId in pairs(net.get_player_list()) do
-    if playerId ~= serverPlayerId then
+function PlayerStats.OnMissionLoadEnd()
+    for _, playerId in pairs(net.get_player_list()) do
         PlayerStats.ConnectEvent(playerId)
     end
 end
