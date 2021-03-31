@@ -118,7 +118,7 @@ function PlayerStats.PilotDeathEvent(playerID, unit_missionID)
 end
 
 function PlayerStats.FriendlyFireEvent(playerID, weaponName, victimPlayerID)
-    if PlayerStats.players[playerID] ~= nil then
+    if PlayerStats.players[playerID] ~= nil and PlayerStats.players[victimPlayerID] ~= nil then
         local victimUcid = PlayerStats.players[victimPlayerID].ucid
         table.insert(PlayerStats.players[playerID].csvEvents, PlayerStats.getTime() .. ';friendly_fire;' .. weaponName .. ';' .. victimUcid)
     end
