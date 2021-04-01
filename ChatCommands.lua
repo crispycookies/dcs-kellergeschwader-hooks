@@ -135,7 +135,7 @@ CHATCOMMAND.__index = CHATCOMMAND
 
 --- Create new CHATCOMMAND
 -- @param #CHATCOMMAND self
--- @param #string command The commands as string table to listen to
+-- @param #string commands The commands as string table to listen to
 -- @param #string callback Callback to execute. Parameter given to the callback is the requester player id
 -- @return #CHATCOMMAND
 function CHATCOMMAND.New(commands, callback)
