@@ -14,7 +14,7 @@ end
 -- @field #number VotesNeeded Number of votes needed to execute callback
 -- @field #number CurrentVotes Actual number of voted
 -- @field #table PlayerIDsVoted Array of player ids already voted
--- @field #string Command The command to listen to
+-- @field #string Commands The commands as string table to listen to
 -- @field #function Callback Callback if voting was successfull
 -- @field #lastStartTime The DCS timer id for the voting reset
 -- @type VOTING
@@ -26,17 +26,17 @@ VOTING.__index = VOTING
 
 --- Create new VOTING
 -- @param #VOTING self
--- @param #string command The command to listen to
+-- @param #table commands The commands as string table to listen to
 -- @param #string callback Callback if voting was successfull
 -- @return #VOTING
-function VOTING.New(command, callback)
+function VOTING.New(commands, callback)
     local self = {}
     setmetatable(self, VOTING)
     self.VoteActive = false
     self.VotesNeeded = 0
     self.CurrentVotes = 0
     self.PlayerIDsVoted = {}
-    self.Command = command
+    self.Commands = commands
     self.Callback = callback
     self.lastStartTime = nil
     return self
@@ -100,7 +100,7 @@ function VOTING:_addVote(playerId)
             self.CurrentVotes = 1
             self.PlayerIDsVoted = {playerId}
             self.lastStartTime = DCS.getRealTime()
-            net.send_chat("Voting started. Enter \"" .. self.Command .. "\" to vote for. Another " .. self.VotesNeeded - 1 .. " votes needed. Vote is active for 2 minutes.", true)
+            net.send_chat("Voting started. Enter \"" .. self.Commands .. "\" to vote for. Another " .. self.VotesNeeded - 1 .. " votes needed. Vote is active for 2 minutes.", true)
         end
     end
 end
@@ -110,8 +110,11 @@ end
 -- @param #string message Message send to chat
 -- @param #number from Player id sends the message
 function VOTING:OnChatMessage(message, from)
-    if message == self.Command then
-        self:_addVote(from)
+    for _, command in pairs(self.Commands) do
+        if message == command then
+            self:_addVote(from)
+            break
+        end
     end
 end
 
@@ -120,7 +123,7 @@ end
 -- @field #number VotesNeeded Number of votes needed to execute callback
 -- @field #number CurrentVotes Actual number of voted
 -- @field #table PlayerIDsVoted Array of player ids already voted
--- @field #string Command The command to listen to
+-- @field #string Commands The commands as string table to listen to
 -- @field #function Callback Callback if voting was successfull
 -- @field #lastStartTime The DCS timer id for the voting reset
 -- @type CHATCOMMAND
@@ -132,20 +135,23 @@ CHATCOMMAND.__index = CHATCOMMAND
 
 --- Create new CHATCOMMAND
 -- @param #CHATCOMMAND self
--- @param #string command The command to listen to
+-- @param #string command The commands as string table to listen to
 -- @param #string callback Callback to execute. Parameter given to the callback is the requester player id
 -- @return #CHATCOMMAND
-function CHATCOMMAND.New(command, callback)
+function CHATCOMMAND.New(commands, callback)
     local self = {}
     setmetatable(self, CHATCOMMAND)
-    self.Command = command
+    self.Commands = commands
     self.Callback = callback
     return self
 end
 
 function CHATCOMMAND:OnChatMessage(message, from)
-    if message == self.Command then
-        self.Callback(from)
+    for _, command in pairs(self.Commands) do
+        if message == command then
+            self.Callback(from)
+            break
+        end
     end
 end
 
@@ -155,14 +161,14 @@ end
 ChatCommands = {}
 local commands = {}
 
-table.insert(commands, VOTING.New("--skip",
+table.insert(commands, VOTING.New({ "--skip", "-skip" },
     function()
         log.write(filename, log.INFO, "Skip voting successfull. Next mission will be started.")
         net.send_chat("Voting successfull. Next mission will be started.", true)
         RandomWeather.LoadNextMission()
     end))
 
-table.insert(commands, CHATCOMMAND.New("--time",
+table.insert(commands, CHATCOMMAND.New({ "--time", "-time" },
     function()
         local hoursLeft = math.floor((AutoEnd.TimeLeft) / 60 / 60)
         local minutesLeft = math.floor((AutoEnd.TimeLeft) / 60 % 60)
@@ -170,7 +176,7 @@ table.insert(commands, CHATCOMMAND.New("--time",
         net.send_chat("Mission end in " .. hoursLeft .. "h " .. minutesLeft .. "m " .. secondsLeft .. "s", true)
     end))
 
-table.insert(commands, VOTING.New("--restart",
+table.insert(commands, VOTING.New({ "--restart", "-restart" },
     function()
         log.write(filename, log.INFO, "Restart voting successfull. Mission will be restarted.")
         net.send_chat("Voting successfull. Mission will be restarted.", true)
@@ -179,7 +185,7 @@ table.insert(commands, VOTING.New("--restart",
         net.missionlist_run(missionIndex)
     end))
 
-table.insert(commands, CHATCOMMAND.New("--mytime",
+table.insert(commands, CHATCOMMAND.New({ "--mytime", "-mytime" },
     function(playerId)
         local time = os.time() - ServerStatus.OnlinePlayers[playerId].JoinTime
         local hours = string.sub("00" .. tostring(math.floor(time / 60 / 60)), -2)
@@ -188,19 +194,15 @@ table.insert(commands, CHATCOMMAND.New("--mytime",
         net.send_chat_to(hours .. ":" .. minutes .. ":" .. seconds .. " h", playerId)
     end))
 
-local function sendHelpToPlayer(playerId)
-    net.send_chat_to("Available commands:", playerId)
-    net.send_chat_to("--help      available commands", playerId)
-    net.send_chat_to("--time      time until restart", playerId)
-    net.send_chat_to("--skip       vote next mission", playerId)
-    net.send_chat_to("--restart   vote mission restart", playerId)
-    net.send_chat_to("--mytime  your session time", playerId)
-end
-
-table.insert(commands, CHATCOMMAND.New("--help", sendHelpToPlayer))
-table.insert(commands, CHATCOMMAND.New("-help", sendHelpToPlayer))
-table.insert(commands, CHATCOMMAND.New("--h", sendHelpToPlayer))
-table.insert(commands, CHATCOMMAND.New("-h", sendHelpToPlayer))
+table.insert(commands, CHATCOMMAND.New({ "--help", "-help", "--h", "-h" },
+    function (playerId)
+        net.send_chat_to("Available commands:", playerId)
+        net.send_chat_to("--help      available commands", playerId)
+        net.send_chat_to("--time      time until restart", playerId)
+        net.send_chat_to("--skip       vote next mission", playerId)
+        net.send_chat_to("--restart   vote mission restart", playerId)
+        net.send_chat_to("--mytime  your session time", playerId)
+    end))
 
 function ChatCommands.OnChatMessage(message, from)
     if DCS.isServer() then
