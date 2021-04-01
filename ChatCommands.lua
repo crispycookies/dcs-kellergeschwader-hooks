@@ -9,6 +9,10 @@ local function getPlayerCount()
     return count - 1
 end
 
+local function trimSpaces(s)
+    return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
 --- @type VOTING
 -- @field #boolean VoteActive Is voting active
 -- @field #number VotesNeeded Number of votes needed to execute callback
@@ -36,9 +40,12 @@ function VOTING.New(commands, callback)
     self.VotesNeeded = 0
     self.CurrentVotes = 0
     self.PlayerIDsVoted = {}
-    self.Commands = commands
     self.Callback = callback
     self.lastStartTime = nil
+    self.Commands = {}
+    for _, command in pairs(commands) do
+        table.insert(self.Commands, trimSpaces(command))
+    end
     return self
 end
 
@@ -110,8 +117,9 @@ end
 -- @param #string message Message send to chat
 -- @param #number from Player id sends the message
 function VOTING:OnChatMessage(message, from)
+    local trimmedMessage = trimSpaces(message)
     for _, command in pairs(self.Commands) do
-        if message == command then
+        if trimmedMessage == command then
             self:_addVote(from)
             break
         end
@@ -141,14 +149,18 @@ CHATCOMMAND.__index = CHATCOMMAND
 function CHATCOMMAND.New(commands, callback)
     local self = {}
     setmetatable(self, CHATCOMMAND)
-    self.Commands = commands
     self.Callback = callback
+    self.Commands = {}
+    for _, command in pairs(commands) do
+        table.insert(self.Commands, trimSpaces(command))
+    end
     return self
 end
 
 function CHATCOMMAND:OnChatMessage(message, from)
+    local trimmedMessage = trimSpaces(message)
     for _, command in pairs(self.Commands) do
-        if message == command then
+        if trimmedMessage == command then
             self.Callback(from)
             break
         end
