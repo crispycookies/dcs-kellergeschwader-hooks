@@ -21,28 +21,30 @@ end
 
 function PlayerStats.ChangeSlotEvent(playerID, slotID, prevSide)
     local playerInfo = net.get_player_info(playerID)
-    local slots = {}
-    local side = playerInfo.side
+    if playerInfo ~= nil then
+        local slots = {}
+        local side = playerInfo.side
 
-    if side == 1 then
-        slots = DCS.getAvailableSlots('red')
-    elseif side == 2 then
-        slots = DCS.getAvailableSlots('blue')
+        if side == 1 then
+            slots = DCS.getAvailableSlots('red')
+        elseif side == 2 then
+            slots = DCS.getAvailableSlots('blue')
+        end
+
+        local slotTable = {}
+        for _, slot in pairs(slots) do
+            slotTable[slot.unitId] = slot
+        end
+
+        table.insert(PlayerStats.players[playerID].csvEvents,
+            PlayerStats.getTime() .. ";change_slot;" ..
+            tostring(side) .. ";" ..
+            slotTable[playerInfo.slot].unitId ..';' ..
+            slotTable[playerInfo.slot].type .. ';' ..
+            slotTable[playerInfo.slot].role .. ';' ..
+            slotTable[playerInfo.slot].groupName
+        )
     end
-
-    local slotTable = {}
-    for _, slot in pairs(slots) do
-        slotTable[slot.unitId] = slot
-    end
-
-    table.insert(PlayerStats.players[playerID].csvEvents,
-        PlayerStats.getTime() .. ";change_slot;" ..
-        tostring(side) .. ";" ..
-        slotTable[playerInfo.slot].unitId ..';' ..
-        slotTable[playerInfo.slot].type .. ';' ..
-        slotTable[playerInfo.slot].role .. ';' ..
-        slotTable[playerInfo.slot].groupName
-    )
 end
 
 function PlayerStats.KillEvent(killerPlayerID, killerUnitType, killerSide, victimPlayerID, victimUnitType, victimSide, weaponName)
