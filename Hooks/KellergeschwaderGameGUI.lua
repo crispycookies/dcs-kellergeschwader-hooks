@@ -1,6 +1,5 @@
 local filename = 'KellergeschwaderGameGUI.lua'
 log.set_output("KellergeschwaderHooks", '', log.ALL, log.FULL)
--- log.set_output("KellergeschwaderHooks", 'ChatCommands.lua', log.ALL, log.FULL)
 
 log.write(filename, log.INFO, 'KellergeschwaderGameGUI loaded')
 local hooks = {}
@@ -18,6 +17,7 @@ function hooks.onMissionLoadEnd()
     AutoEnd.OnMissionLoadEnd()
     PlayerStats.OnMissionLoadEnd()
     ServerStatus.OnMissionLoadEnd()
+    ChatCommands.OnMissionLoadEnd()
 end
 
 function hooks.onChatMessage(message, from)

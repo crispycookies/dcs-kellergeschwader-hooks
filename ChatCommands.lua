@@ -100,14 +100,13 @@ function VOTING:_addVote(playerId)
         local count = getPlayerCount()
 
         if count <= 1 then
-            -- TODO: RESET VOTING
             self.Callback()
         elseif count > 0 then
             self.VoteActive = true
             self.VotesNeeded = count
             self.CurrentVotes = 1
-            --- TODO: INSERT TABLE
-            self.PlayerIDsVoted = {playerId}
+            self.PlayerIDsVoted = {}
+            table.insert(self.PlayerIDsVoted, playerId)
             self.lastStartTime = DCS.getRealTime()
             net.send_chat("Voting started. Enter \"" .. self.Commands .. "\" to vote for. Another " .. self.VotesNeeded - 1 .. " votes needed. Vote is active for 2 minutes.", true)
         end
@@ -222,6 +221,16 @@ function ChatCommands.OnChatMessage(message, from)
     if DCS.isServer() then
         for _, cmd in pairs(commands) do
             cmd:OnChatMessage(message, from)
+        end
+    end
+end
+
+function ChatCommands.OnMissionLoadEnd()
+    if DCS.isServer() then
+        for _, cmd in pairs(commands) do
+            if cmd["Reset"] ~= nil then
+                cmd:Reset()
+            end
         end
     end
 end
