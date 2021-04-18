@@ -35,6 +35,7 @@ end
 function hooks.onSimulationFrame()
     AutoEnd.OnSimulationFrame()
     ServerStatus.OnSimulationFrame()
+    MessageOfTheDay.OnSimulationFrame()
 end
 
 function hooks.onPlayerConnect(id)
