@@ -100,11 +100,13 @@ function VOTING:_addVote(playerId)
         local count = getPlayerCount()
 
         if count <= 1 then
+            -- TODO: RESET VOTING
             self.Callback()
         elseif count > 0 then
             self.VoteActive = true
             self.VotesNeeded = count
             self.CurrentVotes = 1
+            --- TODO: INSERT TABLE
             self.PlayerIDsVoted = {playerId}
             self.lastStartTime = DCS.getRealTime()
             net.send_chat("Voting started. Enter \"" .. self.Commands .. "\" to vote for. Another " .. self.VotesNeeded - 1 .. " votes needed. Vote is active for 2 minutes.", true)
@@ -193,7 +195,7 @@ table.insert(commands, VOTING.New({ "--restart", "-restart" },
         log.write(filename, log.INFO, "Restart voting successfull. Mission will be restarted.")
         net.send_chat("Voting successfull. Mission will be restarted.", true)
         
-        local missionIndex = net.missionlist_get().current
+        local missionIndex = net.missionlist_get().listStartIndex
         net.missionlist_run(missionIndex)
     end))
 

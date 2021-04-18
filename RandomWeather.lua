@@ -11,14 +11,14 @@ function RandomWeather.LoadNextMission()
         missionCount = missionCount + 1
     end
 
-    local nextMissionIndex = missionList.current + 1
+    local nextMissionIndex = missionList.listStartIndex + 1
     if nextMissionIndex > missionCount then
         nextMissionIndex = 1
     end
 
     log.write(filename, log.INFO, "Update weather on " .. missionList.missionList[nextMissionIndex])
 
-    local command = [[""]] .. lfs.writedir() .. [[Scripts\DCSRandomGoWeather.exe" "-m ]] .. missionList.missionList[nextMissionIndex] .. [[""]]
+    local command = [[""]] .. lfs.writedir() .. [[Scripts\dcs-random-go-weather\DCSRandomGoWeather.exe" "-m ]] .. missionList.missionList[nextMissionIndex] .. [[""]]
     os.execute(command)
 
     log.write(filename, log.INFO, "Weather updated, loadnext mission")
