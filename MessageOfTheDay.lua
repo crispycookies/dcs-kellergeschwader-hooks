@@ -1,5 +1,5 @@
 local filename = 'MessageOfTheDay.lua'
-local messageOffset = 15
+local messageOffset = 30
 local playersToWelcome = {}
 
 MessageOfTheDay = {}
