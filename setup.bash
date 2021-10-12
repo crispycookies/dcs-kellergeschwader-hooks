@@ -1,4 +1,4 @@
-DCSDIR="${USERPROFILE}/Saved Games/DCS.openbeta/Scripts"
+DCSDIR="${USERPROFILE}/Saved Games/DCS.openbeta_server/Scripts"
 
 for f in $(find ./ -type f -name "*.lua"); do
     cp -f "$PWD/$f" "$DCSDIR/$f"

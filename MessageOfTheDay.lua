@@ -17,7 +17,7 @@ function MessageOfTheDay.OnSimulationFrame()
     for key, player in pairs(playersToWelcome) do
         if player ~= nil and (realTime - player.joinTime) >= messageOffset then
             net.send_chat_to("Welcome to the Kellergeschwader", player.playerInfo.id)
-            net.send_chat_to("Visit us on https://kellergeschwader.com", player.playerInfo.id)
+            net.send_chat_to("Visit us on https://discord.gg/APjd8aj", player.playerInfo.id)
             net.send_chat_to("Type '--help' for available chat commands", player.playerInfo.id)
             playersToWelcome[key] = nil
         end
