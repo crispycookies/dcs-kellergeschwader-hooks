@@ -178,7 +178,7 @@ table.insert(commands, VOTING.New({ "--skip", "-skip" },
     function()
         log.write(filename, log.INFO, "Skip voting successfull. Next mission will be started.")
         net.send_chat("Voting successfull. Next mission will be started.", true)
-        RandomWeather.LoadNextMission()
+        MissionManager.LoadNextMission()
     end))
 
 table.insert(commands, CHATCOMMAND.New({ "--time", "-time" },

@@ -43,7 +43,7 @@ function AutoEnd.OnSimulationFrame()
         elseif AutoEnd.restarted == false and AutoEnd.TimeLeft <= 0 then
             AutoEnd.restarted = true
             net.send_chat("Mission end", true)
-            RandomWeather.LoadNextMission()
+            MissionManager.LoadNextMission()
         end
     end
 end
