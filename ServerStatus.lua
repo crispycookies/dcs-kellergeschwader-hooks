@@ -11,12 +11,13 @@ function ServerStatus.writeStatus()
     log.write(filename, log.INFO, 'Collect information')
 
     local serverStatus = {}
-    serverStatus.missionsNames = {}
+    serverStatus.mission_names = {}
     serverStatus.players = {}
-    serverStatus.missionTimeLeft = math.floor(AutoEnd.TimeLeft)
+    serverStatus.current_mission = {}
+    serverStatus.current_mission.mission_time_remaining = math.floor(AutoEnd.TimeLeft)
 
     for _, missionName in pairs(net.missionlist_get().missionList) do
-        table.insert(serverStatus.missionsNames, missionName)
+        table.insert(serverStatus.mission_names, missionName)
     end
 
     local slots = {}
@@ -40,7 +41,7 @@ function ServerStatus.writeStatus()
                 player.role = slots[playerInfo.slot].type
             end
 
-            player.onlineTime = math.floor(currentTime - ServerStatus.OnlinePlayers[playerId].JoinTime)
+            player.online_time = math.floor(currentTime - ServerStatus.OnlinePlayers[playerId].JoinTime)
             table.insert(serverStatus.players, player)
         end
     end
@@ -50,8 +51,10 @@ function ServerStatus.writeStatus()
     serverStatus.weather.wind = options.weather.wind
     serverStatus.weather.season = options.weather.season
     serverStatus.weather.clouds = options.weather.clouds
-
-    serverStatus.time = options.start_time + math.floor(DCS.getModelTime())
+    serverStatus.current_mission.map = options.theatre
+    serverStatus.current_mission.date = options.date
+    serverStatus.current_mission.mission = DCS.getMissionFilename()
+    serverStatus.current_mission.time = options.start_time + math.floor(DCS.getModelTime())
 
     local filePath = lfs.writedir() .. 'server-status.json'
     log.write(filename, log.INFO, 'Write status to ' .. filePath)
