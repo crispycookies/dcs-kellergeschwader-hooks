@@ -178,7 +178,7 @@ table.insert(commands, VOTING.New({ "--skip", "-skip" },
     function()
         log.write(filename, log.INFO, "Skip voting successfull. Next mission will be started.")
         net.send_chat("Voting successfull. Next mission will be started.", true)
-        MissionManager.LoadNextMission()
+        net.load_next_mission()
     end))
 
 table.insert(commands, CHATCOMMAND.New({ "--time", "-time" },

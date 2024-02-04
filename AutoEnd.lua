@@ -43,7 +43,7 @@ function AutoEnd.OnSimulationFrame()
         elseif AutoEnd.restarted == false and AutoEnd.TimeLeft <= 0 then
             AutoEnd.restarted = true
             net.send_chat("Mission end", true)
-            MissionManager.LoadNextMission()
+            net.load_next_mission()
         end
     end
 end

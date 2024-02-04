@@ -5,7 +5,6 @@ log.write(filename, log.INFO, 'KellergeschwaderGameGUI loaded')
 local hooks = {}
 loadfile(lfs.writedir()..'Scripts\\ServerStatus.lua')()
 loadfile(lfs.writedir()..'Scripts\\MessageOfTheDay.lua')()
-loadfile(lfs.writedir()..'Scripts\\MissionManager.lua')()
 loadfile(lfs.writedir()..'Scripts\\AutoEnd.lua')()
 loadfile(lfs.writedir()..'Scripts\\ChatCommands.lua')()
 loadfile(lfs.writedir()..'Scripts\\PlayerStatsSimple.lua')()
@@ -36,7 +35,6 @@ function hooks.onSimulationFrame()
     AutoEnd.OnSimulationFrame()
     ServerStatus.OnSimulationFrame()
     MessageOfTheDay.OnSimulationFrame()
-    MissionManager.OnSimulationFrame()
 end
 
 function hooks.onPlayerConnect(id)
